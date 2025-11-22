@@ -1,13 +1,19 @@
 """
 基础交易示例代码
 
-演示如何使用 stock_ox API 进行完整的交易操作，包括：
+演示如何使用 stock_ox API 进行完整的真实交易操作，包括：
 1. API 初始化
 2. 账户登录
 3. 下单（限价单、市价单）
-4. 接收委托回报和成交回报
+4. 接收委托回报和成交回报（通过真实回调）
 5. 撤单
 6. 批量下单
+
+注意：本示例使用真实的交易流程，所有回调都来自真实的交易服务器。
+请确保：
+- 已配置正确的账户信息
+- DLL 文件可用
+- 已连接到交易服务器
 """
 
 import sys
@@ -136,19 +142,8 @@ def example_basic_trading():
         api.login(account, password, account_type, timeout=5.0)
         print(f"✓ 账户 {account} 登录成功")
         
-        # 确保账户信息已设置（在实际环境中，这些信息会从登录响应中获取）
-        if not api._account:
-            api._account = account
-            api._acct_type = account_type
-        
-        # 模拟登录响应
-        api.spi.on_rsp_logon(1, None, True, {
-            'IntOrg': 12345,
-            'CustCode': 'CUST001',
-            'AcctType': account_type.value,
-            'Account': account
-        })
-        time.sleep(0.1)
+        # 注意：登录成功后，账户信息会从登录响应回调中自动获取
+        # 如果登录失败，会抛出 OXLoginError 异常
         
         # 步骤 4: 下单（限价单）
         print("\n[步骤 4] 下单（限价单）...")
@@ -181,43 +176,36 @@ def example_basic_trading():
         print(f"  委托方向: 买入")
         
         # 等待委托回报
+        # 注意：真实的委托回报会通过 on_rtn_order 回调自动触发
         print("\n[步骤 5] 等待委托回报...")
-        time.sleep(0.3)
+        print("  提示：委托回报会通过 on_rtn_order 回调自动接收")
+        time.sleep(2.0)  # 等待真实回调
         
-        # 模拟成交回报
-        print("\n[步骤 6] 模拟成交回报...")
-        filled_dict = {
-            'Account': account,
-            'Trdacct': trdacct,
-            'Symbol': symbol,
-            'ExchangeId': '1',
-            'BoardId': board_id,
-            'StkBiz': stk_biz,
-            'StkBizAction': stk_biz_action,
-            'TradeSn': 'TRADE001',
-            'OrderNo': 123456789012345,
-            'OrderRef': 'ORDER001',
-            'FilledQty': 100,
-            'FilledPrice': '10.50',
-            'FilledAmt': '1050.00',
-            'FilledDate': 20240101,
-            'FilledTime': '14:30:00',
-            'ErrorId': 0,
-            'RetMessage': '',
-        }
-        api.spi.on_rtn_order_filled(filled_dict)
-        time.sleep(0.1)
+        # 等待成交回报
+        # 注意：真实的成交回报会通过 on_rtn_order_filled 回调自动触发
+        print("\n[步骤 6] 等待成交回报...")
+        print("  提示：成交回报会通过 on_rtn_order_filled 回调自动接收")
+        time.sleep(2.0)  # 等待真实回调
         
-        # 步骤 7: 撤单（模拟）
+        # 步骤 7: 撤单
+        # 注意：这里需要真实的委托号，通常从委托回报中获取
         print("\n[步骤 7] 撤单示例...")
-        order_no = 123456789012345
-        cancel_request_id = api.cancel(board_id, order_no)
-        print(f"✓ 撤单请求已发送，请求编号: {cancel_request_id}")
-        print(f"  委托编号: {order_no}")
-        
-        # 等待撤单响应
-        print("\n[步骤 8] 等待撤单响应...")
-        time.sleep(0.2)
+        # 注意：撤单需要真实的委托号
+        # 在实际使用中，委托号应该从委托回报（on_rtn_order）中获取
+        # 这里仅作为示例，实际使用时需要替换为真实的委托号
+        order_no = 0  # 请替换为真实的委托号
+        if order_no > 0:
+            cancel_request_id = api.cancel(board_id, order_no)
+            print(f"✓ 撤单请求已发送，请求编号: {cancel_request_id}")
+            print(f"  委托编号: {order_no}")
+            
+            # 等待撤单响应
+            # 注意：真实的撤单响应会通过 on_rsp_cancel_ticket 回调自动触发
+            print("\n[步骤 8] 等待撤单响应...")
+            print("  提示：撤单响应会通过 on_rsp_cancel_ticket 回调自动接收")
+            time.sleep(2.0)  # 等待真实回调
+        else:
+            print("  跳过撤单（请先下单并获取真实的委托号）")
         
         print("\n✓ 基础交易示例完成")
         

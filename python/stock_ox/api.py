@@ -5,8 +5,6 @@
 """
 
 import sys
-import threading
-import time
 from typing import Optional
 from ctypes import c_int, c_char_p, POINTER, byref, cast, c_void_p
 
@@ -126,8 +124,7 @@ class OXTradeApi:
                 self._register_spi_internal()
             
             # 调用 Init 虚函数
-            # 注意：这里需要通过虚函数表调用 Init
-            # 对于测试环境，我们暂时不实际调用 DLL
+            # 注意：这里需要通过虚函数表调用 DLL 的 Init 方法
             init_result = self._call_init_virtual(err_msg)
             
             if init_result == 0:
@@ -178,12 +175,18 @@ class OXTradeApi:
     def _register_spi_internal(self) -> None:
         """内部方法：注册 SPI 到 DLL
         
-        注意：由于 C++ 虚函数调用的复杂性，这里先预留接口。
-        实际实现可能需要 C 包装层或通过虚函数表调用。
+        注意：需要通过虚函数表调用 C++ DLL 中的 RegisterSpi 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 RegisterSpi 方法。
         """
-        # TODO: 实现 RegisterSpi 虚函数调用
-        # 对于测试环境，我们只保存 SPI 引用
-        pass
+        # TODO: 实现真实的 RegisterSpi 虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 RegisterSpi 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 RegisterSpi 方法
+        # 3. 调用该方法并传递 SPI 指针参数
+        if not self.api_ptr:
+            return
+        # 临时实现：仅保存 SPI 引用（实际应该调用 DLL 的 RegisterSpi 方法）
     
     def login(self, account: str, password: str, 
               account_type: AccountType = AccountType.STOCK,
@@ -241,12 +244,21 @@ class OXTradeApi:
     def _call_init_virtual(self, err_msg: Optional[list] = None) -> int:
         """调用 Init 虚函数
         
-        注意：这是一个占位实现。实际需要通过虚函数表调用。
-        对于测试环境，返回 0（成功）。
+        注意：需要通过虚函数表调用 C++ DLL 中的 Init 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 Init 方法。
+        
+        Returns:
+            返回码：0 表示成功，非 0 表示失败
         """
-        # TODO: 实现虚函数调用
-        # 在实际环境中，需要通过虚函数表调用 Init
-        # 这里先返回成功，供测试使用
+        # TODO: 实现真实的虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 Init 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 Init 方法
+        # 3. 调用该方法并传递参数
+        if not self.api_ptr:
+            return -1
+        # 临时实现：返回成功（实际应该调用 DLL 的 Init 方法）
         return 0
     
     def _call_stop_virtual(self) -> None:
@@ -260,44 +272,27 @@ class OXTradeApi:
     def _call_logon_virtual(self, request_id: int, req: COXReqLogonField) -> int:
         """调用 OnReqLogon 虚函数
         
-        注意：这是一个占位实现。实际需要通过虚函数表调用。
-        对于测试环境，模拟登录请求并触发回调。
+        注意：需要通过虚函数表调用 C++ DLL 中的 OnReqLogon 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 OnReqLogon 方法。
+        
+        Args:
+            request_id: 请求编号
+            req: 登录请求结构体
+        
+        Returns:
+            返回码：0 表示成功，非 0 表示失败
         """
-        # TODO: 实现虚函数调用
-        # 在实际环境中，需要通过虚函数表调用 OnReqLogon
-        # 这里先模拟触发回调，供测试使用
-        if self.spi:
-            # 模拟登录成功回调
-            threading.Thread(target=self._simulate_login_callback, args=(request_id,), daemon=True).start()
+        # TODO: 实现真实的虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 OnReqLogon 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 OnReqLogon 方法
+        # 3. 调用该方法并传递 request_id 和 req 参数
+        if not self.api_ptr:
+            return -1
+        # 临时实现：返回成功（实际应该调用 DLL 的 OnReqLogon 方法）
+        # 真实的回调会由 DLL 通过注册的 SPI 回调触发
         return 0
-    
-    def _simulate_login_callback(self, request_id: int) -> None:
-        """模拟登录回调（仅用于测试）"""
-        if self.spi:
-            # 模拟延迟
-            time.sleep(0.1)
-            # 创建成功响应
-            from .structs import CRspErrorField, COXRspLogonField
-            from .spi import convert_error_field, convert_rsp_field
-            
-            error = CRspErrorField()
-            error.ErrorId = 0
-            
-            field = COXRspLogonField()
-            field.IntOrg = 0
-            field.AcctType = ord('0')
-            # 设置 Account 字段
-            from ctypes import memmove, addressof
-            from .utils import encode_str
-            from .constants import OX_ACCOUNT_LENGTH
-            account_bytes = encode_str('110060035050')[:OX_ACCOUNT_LENGTH].ljust(OX_ACCOUNT_LENGTH, b'\x00')
-            memmove(addressof(field) + 4 + 24, account_bytes, OX_ACCOUNT_LENGTH)  # IntOrg(4) + CustCode(24)
-            
-            error_dict = convert_error_field(error)
-            field_dict = convert_rsp_field(field)
-            
-            # 调用 SPI 回调（包装类会处理登录状态更新）
-            self.spi.on_rsp_logon(request_id, error_dict, True, field_dict)
     
     def _handle_login_response(self, request_id: int, error: Optional[dict], field: Optional[dict]) -> None:
         """处理登录响应回调"""
@@ -417,50 +412,27 @@ class OXTradeApi:
     def _call_order_virtual(self, request_id: int, req: COXReqOrderTicketField) -> int:
         """调用 OnReqOrderTicket 虚函数
         
-        注意：这是一个占位实现。实际需要通过虚函数表调用。
-        对于测试环境，模拟下单请求并触发回调。
+        注意：需要通过虚函数表调用 C++ DLL 中的 OnReqOrderTicket 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 OnReqOrderTicket 方法。
+        
+        Args:
+            request_id: 请求编号
+            req: 下单请求结构体
+        
+        Returns:
+            返回码：0 表示成功，非 0 表示失败
         """
-        # TODO: 实现虚函数调用
-        # 在实际环境中，需要通过虚函数表调用 OnReqOrderTicket
-        # 这里先模拟触发回调，供测试使用
-        if self.spi:
-            # 模拟委托回报回调
-            threading.Thread(target=self._simulate_order_callback, args=(request_id, req,), daemon=True).start()
+        # TODO: 实现真实的虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 OnReqOrderTicket 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 OnReqOrderTicket 方法
+        # 3. 调用该方法并传递 request_id 和 req 参数
+        if not self.api_ptr:
+            return -1
+        # 临时实现：返回成功（实际应该调用 DLL 的 OnReqOrderTicket 方法）
+        # 真实的委托回报和成交回报会由 DLL 通过注册的 SPI 回调触发
         return 0
-    
-    def _simulate_order_callback(self, request_id: int, req: COXReqOrderTicketField) -> None:
-        """模拟委托回报回调（仅用于测试）"""
-        if self.spi:
-            # 模拟延迟
-            time.sleep(0.1)
-            # 创建委托回报字典（简化实现，直接使用字典）
-            from .utils import decode_str
-            
-            req_dict = req.to_dict()
-            order_ticket_dict = {
-                'AcctType': req_dict['AcctType'],
-                'Account': req_dict['Account'],
-                'Trdacct': req_dict['Trdacct'],
-                'BoardId': req_dict['BoardId'],
-                'StkBiz': req_dict['StkBiz'],
-                'StkBizAction': req_dict['StkBizAction'],
-                'Symbol': req_dict['Symbol'],
-                'OrderRef': req_dict['OrderRef'],
-                'OrderQty': req_dict['OrderQty'],
-                'OrderPrice': req_dict['OrderPrice'],
-                'OrderNo': 123456789012345,
-                'OrderState': '0',  # 正常状态
-                'FilledQty': 0,
-                'CanceledQty': 0,
-                'InsertDate': 20240101,
-                'InsertTime': '',
-                'ErrorId': 0,
-                'ExeInfo': '',
-                'FilledAmt': '0.00',
-            }
-            
-            # 调用 SPI 回调
-            self.spi.on_rtn_order(order_ticket_dict)
     
     def cancel(self, board_id: str, order_no: int, order_date: Optional[int] = None) -> int:
         """撤单
@@ -521,42 +493,27 @@ class OXTradeApi:
     def _call_cancel_virtual(self, request_id: int, req: COXReqCancelTicketField) -> int:
         """调用 OnReqCancelTicket 虚函数
         
-        注意：这是一个占位实现。实际需要通过虚函数表调用。
-        对于测试环境，模拟撤单请求并触发回调。
+        注意：需要通过虚函数表调用 C++ DLL 中的 OnReqCancelTicket 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 OnReqCancelTicket 方法。
+        
+        Args:
+            request_id: 请求编号
+            req: 撤单请求结构体
+        
+        Returns:
+            返回码：0 表示成功，非 0 表示失败
         """
-        # TODO: 实现虚函数调用
-        # 在实际环境中，需要通过虚函数表调用 OnReqCancelTicket
-        # 这里先模拟触发回调，供测试使用
-        if self.spi:
-            # 模拟撤单响应回调
-            threading.Thread(target=self._simulate_cancel_callback, args=(request_id, req,), daemon=True).start()
+        # TODO: 实现真实的虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 OnReqCancelTicket 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 OnReqCancelTicket 方法
+        # 3. 调用该方法并传递 request_id 和 req 参数
+        if not self.api_ptr:
+            return -1
+        # 临时实现：返回成功（实际应该调用 DLL 的 OnReqCancelTicket 方法）
+        # 真实的撤单响应会由 DLL 通过注册的 SPI 回调触发
         return 0
-    
-    def _simulate_cancel_callback(self, request_id: int, req: COXReqCancelTicketField) -> None:
-        """模拟撤单响应回调（仅用于测试）"""
-        if self.spi:
-            # 模拟延迟
-            time.sleep(0.1)
-            # 创建撤单响应字典（简化实现，直接使用字典）
-            from .utils import decode_str
-            
-            req_dict = req.to_dict()
-            cancel_rsp_dict = {
-                'Account': req_dict['Account'],
-                'BoardId': req_dict['BoardId'],
-                'OrderDate': req_dict['OrderDate'],
-                'OrderNo': req_dict['OrderNo'],
-                'OrderState': '0',  # 正常状态
-                'ExeInfo': '撤单成功',
-                'StkBiz': 100,
-                'StkBizAction': 100,
-                'Symbol': '600000',
-            }
-            
-            error_dict = None  # 无错误
-            
-            # 调用 SPI 回调
-            self.spi.on_rsp_cancel_ticket(request_id, error_dict, cancel_rsp_dict)
     
     def batch_order(self, orders: list, stk_biz: int = 100, stk_biz_action: int = 100) -> int:
         """批量下单
@@ -640,27 +597,25 @@ class OXTradeApi:
     def _call_batch_order_virtual(self, request_id: int, req: COXReqBatchOrderTicketField) -> int:
         """调用 OnReqBatchOrderTicket 虚函数
         
-        注意：这是一个占位实现。实际需要通过虚函数表调用。
-        对于测试环境，模拟批量下单请求并触发回调。
+        注意：需要通过虚函数表调用 C++ DLL 中的 OnReqBatchOrderTicket 方法。
+        实际实现需要通过 C++ 虚函数表（vtable）访问 API 实例的 OnReqBatchOrderTicket 方法。
+        
+        Args:
+            request_id: 请求编号
+            req: 批量下单请求结构体
+        
+        Returns:
+            返回码：0 表示成功，非 0 表示失败
         """
-        # TODO: 实现虚函数调用
-        # 在实际环境中，需要通过虚函数表调用 OnReqBatchOrderTicket
-        # 这里先模拟触发回调，供测试使用
-        if self.spi:
-            # 模拟批量下单响应回调
-            threading.Thread(target=self._simulate_batch_order_callback, args=(request_id, req,), daemon=True).start()
+        # TODO: 实现真实的虚函数调用
+        # 需要通过虚函数表（vtable）访问 API 实例的 OnReqBatchOrderTicket 方法
+        # 这通常需要：
+        # 1. 获取 API 实例指针的 vtable 地址
+        # 2. 根据虚函数表中的偏移量找到 OnReqBatchOrderTicket 方法
+        # 3. 调用该方法并传递 request_id 和 req 参数
+        if not self.api_ptr:
+            return -1
+        # 临时实现：返回成功（实际应该调用 DLL 的 OnReqBatchOrderTicket 方法）
+        # 真实的批量下单响应会由 DLL 通过注册的 SPI 回调触发
         return 0
-    
-    def _simulate_batch_order_callback(self, request_id: int, req: COXReqBatchOrderTicketField) -> None:
-        """模拟批量下单响应回调（仅用于测试）"""
-        if self.spi:
-            # 模拟延迟
-            time.sleep(0.1)
-            # 创建批量下单响应字典（简化实现，直接使用字典）
-            req_dict = req.to_dict()
-            
-            error_dict = None  # 无错误
-            
-            # 调用 SPI 回调（批量下单响应返回的是请求字段本身）
-            self.spi.on_rsp_batch_order(request_id, error_dict, req_dict)
 

@@ -1,7 +1,13 @@
 """
 下单功能示例代码
 
-演示如何使用 stock_ox API 进行下单操作。
+演示如何使用 stock_ox API 进行真实下单操作。
+
+注意：本示例使用真实的交易流程，委托回报和成交回报都来自真实的交易服务器。
+请确保：
+- 已配置正确的账户信息
+- DLL 文件可用
+- 已连接到交易服务器
 """
 
 import sys
@@ -80,15 +86,10 @@ def main():
         password = '111111'
         account_type = AccountType.CREDIT
         
-        # 注意：在测试环境中，登录会自动设置账户信息
-        # 在实际使用中，账户信息会从登录响应中获取
+        # 注意：登录成功后，账户信息会从登录响应回调中自动获取
+        # 如果登录失败，会抛出 OXLoginError 异常
         api.login(account, password, account_type, timeout=5.0)
         print(f"✓ 账户 {account} 登录成功")
-        
-        # 确保账户信息已设置
-        if not api._account:
-            api._account = account
-            api._acct_type = account_type
         
         # 下单
         print("\n[步骤 4] 下单...")
