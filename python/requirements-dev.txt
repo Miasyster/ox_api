@@ -1,0 +1,7 @@
+# 开发环境依赖
+-r requirements.txt
+
+# 额外的开发工具
+ipython>=8.0.0
+jupyter>=1.0.0
+
