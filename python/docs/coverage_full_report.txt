@@ -1,0 +1,111 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.3, pytest-9.0.1, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/macbook/Projects/my_python_project/stock_ox/python
+configfile: pyproject.toml
+plugins: cov-7.0.0
+collecting ... collected 83 items
+
+tests/test_basic.py::test_version PASSED                                 [  1%]
+tests/test_basic.py::test_account_type PASSED                            [  2%]
+tests/test_basic.py::test_order_state PASSED                             [  3%]
+tests/test_basic.py::test_exchange_id PASSED                             [  4%]
+tests/test_basic.py::test_constants PASSED                               [  6%]
+tests/test_basic.py::test_encode_decode_str PASSED                       [  7%]
+tests/test_basic.py::test_encode_decode_utf8 PASSED                      [  8%]
+tests/test_basic.py::test_format_price PASSED                            [  9%]
+tests/test_basic.py::test_exceptions PASSED                              [ 10%]
+tests/test_basic.py::test_exception_inheritance PASSED                   [ 12%]
+tests/test_dll_loader.py::TestFindDllPath::test_find_dll_path_success PASSED [ 13%]
+tests/test_dll_loader.py::TestFindDllPath::test_find_dll_path_not_found PASSED [ 14%]
+tests/test_dll_loader.py::TestLoadDll::test_load_dll_success PASSED      [ 15%]
+tests/test_dll_loader.py::TestLoadDll::test_load_dll_not_found PASSED    [ 16%]
+tests/test_dll_loader.py::TestLoadDll::test_load_dll_file_not_exists PASSED [ 18%]
+tests/test_dll_loader.py::TestLoadDll::test_load_dll_load_error PASSED   [ 19%]
+tests/test_dll_loader.py::TestLoadDll::test_load_dll_with_custom_path PASSED [ 20%]
+tests/test_dll_loader.py::TestGetCreateApiFunc::test_get_create_api_func_success PASSED [ 21%]
+tests/test_dll_loader.py::TestGetCreateApiFunc::test_get_create_api_func_not_found PASSED [ 22%]
+tests/test_dll_loader.py::TestGetCreateApiFunc::test_get_create_api_func_alternative_names PASSED [ 24%]
+tests/test_dll_loader.py::TestGetReleaseApiFunc::test_get_release_api_func_success PASSED [ 25%]
+tests/test_dll_loader.py::TestGetReleaseApiFunc::test_get_release_api_func_not_found PASSED [ 26%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_load PASSED        [ 27%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_load_twice PASSED  [ 28%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_create_api PASSED  [ 30%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_create_api_not_loaded PASSED [ 31%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_release_api PASSED [ 32%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_release_api_not_loaded PASSED [ 33%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_release_api_invalid_pointer PASSED [ 34%]
+tests/test_dll_loader.py::TestDLLoader::test_dlloader_context_manager PASSED [ 36%]
+tests/test_stage1_acceptance.py::TestStage1Acceptance::test_criterion_1_load_dll SKIPPED [ 37%]
+tests/test_stage1_acceptance.py::TestStage1Acceptance::test_criterion_2_create_and_release_api SKIPPED [ 38%]
+tests/test_stage1_acceptance.py::TestStage1Acceptance::test_criterion_3_structs_creation_and_access PASSED [ 39%]
+tests/test_stage1_acceptance.py::test_all_criteria PASSED                [ 40%]
+tests/test_structs.py::TestCRspErrorField::test_structure_size PASSED    [ 42%]
+tests/test_structs.py::TestCRspErrorField::test_structure_creation PASSED [ 43%]
+tests/test_structs.py::TestCRspErrorField::test_structure_assignment PASSED [ 44%]
+tests/test_structs.py::TestCRspErrorField::test_to_dict PASSED           [ 45%]
+tests/test_structs.py::TestCRspErrorField::test_structure_memory_layout PASSED [ 46%]
+tests/test_structs.py::TestCOXReqLogonField::test_structure_size PASSED  [ 48%]
+tests/test_structs.py::TestCOXReqLogonField::test_structure_creation PASSED [ 49%]
+tests/test_structs.py::TestCOXReqLogonField::test_structure_assignment PASSED [ 50%]
+tests/test_structs.py::TestCOXReqLogonField::test_from_dict PASSED       [ 51%]
+tests/test_structs.py::TestCOXReqLogonField::test_to_dict PASSED         [ 53%]
+tests/test_structs.py::TestCOXRspLogonField::test_structure_size PASSED  [ 54%]
+tests/test_structs.py::TestCOXRspLogonField::test_structure_creation PASSED [ 55%]
+tests/test_structs.py::TestCOXRspLogonField::test_structure_assignment PASSED [ 56%]
+tests/test_structs.py::TestCOXRspLogonField::test_to_dict PASSED         [ 57%]
+tests/test_structs.py::TestCOXReqTradeAcctField::test_structure_size PASSED [ 59%]
+tests/test_structs.py::TestCOXReqTradeAcctField::test_structure_creation PASSED [ 60%]
+tests/test_structs.py::TestCOXReqTradeAcctField::test_from_dict PASSED   [ 61%]
+tests/test_structs.py::TestCOXReqTradeAcctField::test_to_dict PASSED     [ 62%]
+tests/test_structs.py::TestCOXRspTradeAcctField::test_structure_size PASSED [ 63%]
+tests/test_structs.py::TestCOXRspTradeAcctField::test_structure_creation PASSED [ 65%]
+tests/test_structs.py::TestCOXRspTradeAcctField::test_to_dict PASSED     [ 66%]
+tests/test_structs.py::TestStructMemoryLayout::test_error_field_layout PASSED [ 67%]
+tests/test_structs.py::TestStructMemoryLayout::test_logon_req_layout PASSED [ 68%]
+tests/test_structs.py::TestStructMemoryLayout::test_logon_rsp_layout PASSED [ 69%]
+tests/test_structs.py::TestStructMemoryLayout::test_pack_alignment PASSED [ 71%]
+tests/test_task_2_1.py::TestConstants::test_string_length_constants PASSED [ 72%]
+tests/test_task_2_1.py::TestConstants::test_business_code_constants PASSED [ 73%]
+tests/test_task_2_1.py::TestConstants::test_board_constants PASSED       [ 74%]
+tests/test_task_2_1.py::TestConstants::test_exchange_constants PASSED    [ 75%]
+tests/test_task_2_1.py::TestTypes::test_account_type_enum PASSED         [ 77%]
+tests/test_task_2_1.py::TestTypes::test_account_type_conversion PASSED   [ 78%]
+tests/test_task_2_1.py::TestTypes::test_order_state_enum PASSED          [ 79%]
+tests/test_task_2_1.py::TestTypes::test_order_state_conversion PASSED    [ 80%]
+tests/test_task_2_1.py::TestTypes::test_exchange_id_enum PASSED          [ 81%]
+tests/test_task_2_1.py::TestTypes::test_exchange_id_conversion PASSED    [ 83%]
+tests/test_task_2_1.py::TestTypes::test_helper_functions PASSED          [ 84%]
+tests/test_task_2_1.py::TestUtils::test_encode_str PASSED                [ 85%]
+tests/test_task_2_1.py::TestUtils::test_decode_str PASSED                [ 86%]
+tests/test_task_2_1.py::TestUtils::test_format_price PASSED              [ 87%]
+tests/test_task_2_1.py::TestUtils::test_parse_price PASSED               [ 89%]
+tests/test_task_2_1.py::TestUtils::test_format_quantity PASSED           [ 90%]
+tests/test_task_2_1.py::TestUtils::test_parse_quantity PASSED            [ 91%]
+tests/test_task_2_1.py::TestUtils::test_pad_string PASSED                [ 92%]
+tests/test_task_2_1.py::TestUtils::test_truncate_string PASSED           [ 93%]
+tests/test_task_2_1.py::TestUtils::test_safe_int PASSED                  [ 95%]
+tests/test_task_2_1.py::TestUtils::test_safe_float PASSED                [ 96%]
+tests/test_task_2_1.py::TestExceptions::test_exception_hierarchy PASSED  [ 97%]
+tests/test_task_2_1.py::TestExceptions::test_exception_creation PASSED   [ 98%]
+tests/test_task_2_1.py::TestExceptions::test_exception_raising PASSED    [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.12.3-final-0 _______________
+
+Name                     Stmts   Miss  Cover   Missing
+------------------------------------------------------
+stock_ox/__init__.py         3      0   100%
+stock_ox/api.py             41     41     0%   7-106
+stock_ox/constants.py       95      0   100%
+stock_ox/dll_loader.py     111     14    87%   16, 79, 84, 131-132, 158, 171-172, 223, 228-229, 244, 251-252
+stock_ox/exceptions.py      12      0   100%
+stock_ox/spi.py              9      9     0%   7-40
+stock_ox/structs.py         65      0   100%
+stock_ox/types.py           87     11    87%   97, 120, 122, 129, 148, 164-167, 183-186
+stock_ox/utils.py          108     35    68%   45, 50-56, 80-81, 128-129, 175, 179, 201, 211-219, 232-247, 266, 274, 301
+------------------------------------------------------
+TOTAL                      531    110    79%
+Coverage HTML written to dir docs/coverage_html
+Coverage JSON written to file docs/coverage.json
+======================== 81 passed, 2 skipped in 0.15s =========================

@@ -17,8 +17,13 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Stock OX Team",
-    author_email="",
+    author_email="stock-ox-team@example.com",
     url="https://github.com/your-username/stock-ox",
+    project_urls={
+        "Bug Reports": "https://github.com/your-username/stock-ox/issues",
+        "Source": "https://github.com/your-username/stock-ox",
+        "Documentation": "https://github.com/your-username/stock-ox/tree/main/python/docs",
+    },
     packages=find_packages(exclude=['tests', 'examples']),
     python_requires=">=3.7",
     install_requires=[
