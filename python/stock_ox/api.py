@@ -5,6 +5,7 @@
 """
 
 import sys
+import threading
 from typing import Optional
 from ctypes import c_int, c_char_p, POINTER, byref, cast, c_void_p
 
