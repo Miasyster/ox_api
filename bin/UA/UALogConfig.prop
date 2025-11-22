@@ -1,0 +1,22 @@
+{
+    "loggers": [
+        {
+            "path": "LOG/ua.log",
+            "type": "file"
+        }
+    ],
+    "config": {
+        "name": "ua",
+        "mode": "async",
+        "log_level": 2,
+        "flush_level": 4,
+        "format" : "%Y-%m-%d %H:%M:%S.%e [%5t] [%5l] %v",
+        "async_queue": 8192,
+        "async_thread": 1,
+        "async_policy": 0,
+        "periodic_flush_interval": 5
+    },
+    "ReadMe": {
+        "dec": ""
+    }
+}

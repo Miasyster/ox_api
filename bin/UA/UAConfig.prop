@@ -1,0 +1,17 @@
+{
+    "Packer":{
+    },
+    "API":{
+        "APINetDebug": 0,
+        "LogVerbose": 1,
+        "LogSendMsgReq" : 0,
+        "LogSendMsgAns" : 0,
+        "LogRecvMsg" : 0,
+        "AutoReconnect": 1,
+        "UseServerList": 1,
+        "ConTimeOut" : 60000,
+        "RegTimeOut" : 60000,
+        "HeartBeatInterval" : 5000,
+        "HeartBeatMaxWait"  : 12
+    }
+}
