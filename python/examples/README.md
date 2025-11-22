@@ -44,6 +44,36 @@ cd python
 python examples/query_example.py
 ```
 
+### 4. `real_trading.py` - 真实股票交易脚本 ⚠️
+
+**⚠️ 重要警告：这是一个真实的交易系统！所有操作都会产生真实的交易。请确保您完全了解交易风险，谨慎操作。**
+
+用于进行真实的股票下单操作，支持：
+- 从配置文件读取账户信息或手动输入
+- 交互式下单和撤单
+- 实时查看委托回报和成交回报
+- 订单管理
+
+**使用方法：**
+```bash
+cd python
+python examples/real_trading.py
+```
+
+**详细使用指南：**
+请参阅 [REAL_TRADING_GUIDE.md](REAL_TRADING_GUIDE.md) 获取详细的使用说明和注意事项。
+
+**配置说明：**
+1. 编辑 `bin/config/config.ini` 文件，配置账户信息
+2. 或者运行脚本时手动输入账户信息
+
+**主要功能：**
+- 登录账户
+- 下单（限价单、市价单）
+- 撤单
+- 查看订单状态
+- 接收实时回报
+
 ## 运行环境要求
 
 ### Windows 环境
