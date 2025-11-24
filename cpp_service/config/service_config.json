@@ -1,0 +1,18 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "threads": 4
+  },
+  "ox_sdk": {
+    "dll_path": "./bin/GuosenOXAPI.dll",
+    "config_path": "./bin/config/config.ini"
+  },
+  "log": {
+    "level": "info",
+    "file": "./logs/service.log",
+    "console_output": true,
+    "file_output": true
+  }
+}
+

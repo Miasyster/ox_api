@@ -47,18 +47,84 @@ set_target_properties(test_dependencies PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+# 配置模块库
+add_library(config_lib
+    src/config.cpp
+)
+
+# 日志模块库
+add_library(logger_lib
+    src/logger.cpp
+)
+
+# 日志模块依赖配置模块
+target_link_libraries(logger_lib
+    config_lib
+)
+
 # 主服务程序（空项目测试用）
 add_executable(ox_service
     src/main.cpp
 )
 
-# 链接国信OX SDK库
+# 链接国信OX SDK库和配置模块
 target_link_libraries(ox_service
+    config_lib
     GuosenOXAPI
 )
 
 # 设置输出目录
 set_target_properties(ox_service PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# 配置模块单元测试
+add_executable(test_config
+    tests/test_config.cpp
+    src/config.cpp
+)
+
+target_link_libraries(test_config
+    config_lib
+)
+
+# 日志模块单元测试
+add_executable(test_logger
+    tests/test_logger.cpp
+    src/logger.cpp
+    src/config.cpp
+)
+
+target_link_libraries(test_logger
+    logger_lib
+    config_lib
+)
+
+# 错误处理模块库
+add_library(error_handler_lib
+    src/error_handler.cpp
+)
+
+# 错误处理模块单元测试
+add_executable(test_error_handler
+    tests/test_error_handler.cpp
+    src/error_handler.cpp
+)
+
+target_link_libraries(test_error_handler
+    error_handler_lib
+)
+
+# 设置输出目录
+set_target_properties(test_config PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+set_target_properties(test_logger PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+set_target_properties(test_error_handler PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
