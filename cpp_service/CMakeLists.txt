@@ -105,6 +105,18 @@ add_library(error_handler_lib
     src/error_handler.cpp
 )
 
+# HTTP服务器模块库
+add_library(http_server_lib
+    src/http_server.cpp
+)
+
+# HTTP服务器依赖其他模块
+target_link_libraries(http_server_lib
+    logger_lib
+    config_lib
+    error_handler_lib
+)
+
 # 错误处理模块单元测试
 add_executable(test_error_handler
     tests/test_error_handler.cpp
@@ -112,6 +124,22 @@ add_executable(test_error_handler
 )
 
 target_link_libraries(test_error_handler
+    error_handler_lib
+)
+
+# HTTP服务器模块单元测试
+add_executable(test_http_server
+    tests/test_http_server.cpp
+    src/http_server.cpp
+    src/logger.cpp
+    src/config.cpp
+    src/error_handler.cpp
+)
+
+target_link_libraries(test_http_server
+    http_server_lib
+    logger_lib
+    config_lib
     error_handler_lib
 )
 
@@ -125,6 +153,30 @@ set_target_properties(test_logger PROPERTIES
 )
 
 set_target_properties(test_error_handler PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+set_target_properties(test_http_server PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# 阶段2.2验收测试
+add_executable(test_2_2_acceptance
+    tests/test_2_2_acceptance.cpp
+    src/http_server.cpp
+    src/logger.cpp
+    src/config.cpp
+    src/error_handler.cpp
+)
+
+target_link_libraries(test_2_2_acceptance
+    http_server_lib
+    logger_lib
+    config_lib
+    error_handler_lib
+)
+
+set_target_properties(test_2_2_acceptance PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
