@@ -13,6 +13,10 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+#endif
 
 GuosenOXTradeApi * g_TradeApi;
 OXAccountType g_acctType;
@@ -42,7 +46,7 @@ public:
 		std::cout << pField->BoardId << " " << pField->TrdAcct << std::endl;
 	}
 
-	//Î¯ÍĞĞÅÏ¢ÍÆËÍ
+	//Î¯ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 	virtual void OnRtnOrder(const COXOrderTicket *pRtnOrderTicket) override
 	{
 		std::cout << __FUNCTION__ << " Symbol : " << pRtnOrderTicket->Symbol << " orderPrice : "
@@ -53,7 +57,7 @@ public:
             <<" ExeInfo : " << pRtnOrderTicket->ExeInfo
             << std::endl;
 	}
-	//³É½»ĞÅÏ¢ÍÆËÍ
+	//ï¿½É½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 	virtual void OnRtnOrderFilled(const COXOrderFilledField *pFilledInfo) override
 	{
 		std::cout << __FUNCTION__ << " symbol: " << pFilledInfo->Symbol << " FilledPrice : " << pFilledInfo->FilledPrice
@@ -137,7 +141,7 @@ public:
 		}
 	}
 	
-	// ÈÚ×ÊÈÚÈ¯ ¸ºÕ®²éÑ¯
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ ï¿½ï¿½Õ®ï¿½ï¿½Ñ¯
 	virtual void OnRspQueryCreditBalanceDebt(int nRequest, const CRspErrorField *pError, bool bLast, const COXRspCreditBalanceDebtField *pField) override
 	{
 		std::cout << "FiAmt:" << pField->FiAmt << "TotalFiFee:" << pField->TotalFiFee << "FICredit:" << pField->FICredit << std::endl;
@@ -300,7 +304,7 @@ public:
 
     }
 
-    //ÆÚÈ¨
+    //ï¿½ï¿½È¨
     virtual void OnRspQueryStockOptionBalance(int nRequest, const CRspErrorField *pError, bool bLast, const COXRspStockOptionBalanceField *pField) override
     {
         std::cout << __FUNCTION__ << " error: " << pError->ErrorId << " error_info: " << pError->ErrorInfo << std::endl;
@@ -325,14 +329,14 @@ public:
         std::cout << __FUNCTION__ << " error: " << pError->ErrorId << " error_info: " << pError->ErrorInfo << std::endl;
     }
 
-    //ETFĞÅÏ¢²éÑ¯Ó¦´ğ
+    //ETFï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯Ó¦ï¿½ï¿½
     virtual void OnRspQueryETFInfo(int nRequest, const CRspErrorField *pError, bool bLast, const COXRspETFInfoField *pField) override
     {
         std::cout << __FUNCTION__ <<" request "<<nRequest << " error: " << pError->ErrorId << " error_info: " << pError->ErrorInfo << std::endl;
         if (pError->ErrorId)
             return;
     }
-    //ETF³É·Ö¹ÉĞÅÏ¢²éÑ¯Ó¦´ğ
+    //ETFï¿½É·Ö¹ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯Ó¦ï¿½ï¿½
     virtual void OnRspQueryETFComponentInfo(int nRequest, const CRspErrorField *pError, bool bLast, const COXRspETFComponentInfoField *pField) override
     {
         std::cout << __FUNCTION__ << " request " << nRequest <<" error: " << pError->ErrorId << " error_info: " << pError->ErrorInfo << std::endl;
@@ -362,36 +366,36 @@ int Work()
 {
 	while (true)
 	{
-		std::cout << "ÊäÈëÄãµÄÃüÁî :\n"
-			"\tÏŞ¼ÛÂò100ÊÖ000001£º BUY SH.600000 100 9.9\n"
-			"\tÊĞ¼ÛÂô100ÊÖ000001£º SELL SZ.000001 100 MKT\n"
-			"\t³·µô¶©µ¥ : CANCEL SH Q123456\n"
-			"\t²éÑ¯¹É¶«ÕËºÅ : QUERY ACCOUNT\n"
-			"\t²éÑ¯³Ö²Ö : QUERY POSITION\n"
-            "\t²éÑ¯Î¯ÍĞ : QUERY ORDER\n"
-			"\t²éÑ¯³É½»Ã÷Ï¸ : QUERY DETAIL\n"
-			"\t²éÑ¯×Ê½ğ : QUERY BALANCE\n"
-			"\tÉê¹ºETF : BUYETF SZ.159901 1000000 1\n"
-            "\tÉê¹ºETF : BUYETF SH.510051 900000 1\n"
-			"\tÈÚ×ÊÈÚÈ¯£¬ÈÚ×ÊÂòÈë: BUYCREDIT SH.601088 100 18.41\n"
-			"\tÈÚ×ÊÈÚÈ¯£¬ÈÚÈ¯Âô³ö: SELLCREDIT SH.601088 100 18.41\n"
-			"\tµ£±£Æ·ÂòÈë: BUYGUARD SH.600000 100 9.9\n"
-			"\tµ£±£Æ·Âô³ö: SELLGUARD SH.600000 100 9.9\n"
-			"\tÈÚ×ÊÈÚÈ¯£¬¸ºÕ®²éÑ¯: CREDIT QUERY\n"
-			"\tÈÚ×ÊÈÚÈ¯£¬Ö±½Ó»¹¿î: CREDIT REPAY\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬±êµÄÈ¯²éÑ¯: CREDIT STOCK LIST\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬µ£±£È¯²éÑ¯: CREDIT COLLATERALS STOCKS\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬ÈÚÈ¯Í·´ç²éÑ¯: CREDIT SECULEND QUOTA\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬×Ê²ú¸ºÕ®²éÑ¯: CREDIT BALANCE DEBT\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬ÈÚ×ÊÈÚÈ¯ºÏÔ¼²éÑ¯: CREDIT CONTRACTS\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬¿É³¥»¹½ğ¶î²éÑ¯: CREDIT REIMBURSIBLE BALANCE\n"
-            "\tÈÚ×ÊÈÚÈ¯£¬ÈÚÈ¯ºÏÔ¼»ã×ÜĞÅÏ¢: CREDIT CONTRACTSUMMARY\n"
-            "\tÆÚÈ¨    £¬ÆÚÈ¨×Ê½ğĞÅÏ¢²éÑ¯: OPTION FUND\n"
-            "\tÆÚÈ¨    £¬ÆÚÈ¨³Ö²ÖĞÅÏ¢²éÑ¯: OPTION POSITION\n"
-            "\tETF     £¬ETFĞÅÏ¢²éÑ¯: ETF INFO\n"
-            "\tETF     £¬ETF³É·Ö¹ÉĞÅÏ¢²éÑ¯: ETF COMPONENT INFO\n"
+		std::cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ :\n"
+			"\tï¿½Ş¼ï¿½ï¿½ï¿½100ï¿½ï¿½000001ï¿½ï¿½ BUY SH.600000 100 9.9\n"
+			"\tï¿½Ğ¼ï¿½ï¿½ï¿½100ï¿½ï¿½000001ï¿½ï¿½ SELL SZ.000001 100 MKT\n"
+			"\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ : CANCEL SH Q123456\n"
+			"\tï¿½ï¿½Ñ¯ï¿½É¶ï¿½ï¿½Ëºï¿½ : QUERY ACCOUNT\n"
+			"\tï¿½ï¿½Ñ¯ï¿½Ö²ï¿½ : QUERY POSITION\n"
+            "\tï¿½ï¿½Ñ¯Î¯ï¿½ï¿½ : QUERY ORDER\n"
+			"\tï¿½ï¿½Ñ¯ï¿½É½ï¿½ï¿½ï¿½Ï¸ : QUERY DETAIL\n"
+			"\tï¿½ï¿½Ñ¯ï¿½Ê½ï¿½ : QUERY BALANCE\n"
+			"\tï¿½ê¹ºETF : BUYETF SZ.159901 1000000 1\n"
+            "\tï¿½ê¹ºETF : BUYETF SH.510051 900000 1\n"
+			"\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: BUYCREDIT SH.601088 100 18.41\n"
+			"\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½: SELLCREDIT SH.601088 100 18.41\n"
+			"\tï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½: BUYGUARD SH.600000 100 9.9\n"
+			"\tï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½: SELLGUARD SH.600000 100 9.9\n"
+			"\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½Õ®ï¿½ï¿½Ñ¯: CREDIT QUERY\n"
+			"\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ö±ï¿½Ó»ï¿½ï¿½ï¿½: CREDIT REPAY\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ñ¯: CREDIT STOCK LIST\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ñ¯: CREDIT COLLATERALS STOCKS\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½È¯Í·ï¿½ï¿½ï¿½Ñ¯: CREDIT SECULEND QUOTA\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½Ê²ï¿½ï¿½ï¿½Õ®ï¿½ï¿½Ñ¯: CREDIT BALANCE DEBT\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ô¼ï¿½ï¿½Ñ¯: CREDIT CONTRACTS\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½É³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯: CREDIT REIMBURSIBLE BALANCE\n"
+            "\tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢: CREDIT CONTRACTSUMMARY\n"
+            "\tï¿½ï¿½È¨    ï¿½ï¿½ï¿½ï¿½È¨ï¿½Ê½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯: OPTION FUND\n"
+            "\tï¿½ï¿½È¨    ï¿½ï¿½ï¿½ï¿½È¨ï¿½Ö²ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯: OPTION POSITION\n"
+            "\tETF     ï¿½ï¿½ETFï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯: ETF INFO\n"
+            "\tETF     ï¿½ï¿½ETFï¿½É·Ö¹ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ñ¯: ETF COMPONENT INFO\n"
 
-			"\t ÍË³ö : q \n" << std::endl;
+			"\t ï¿½Ë³ï¿½ : q \n" << std::endl;
 
 		std::cout << "please input :";
 		std::string input;
@@ -400,14 +404,14 @@ int Work()
 		if (input == "q")
 			return 0;
 
-		std::regex reg3("^QUERY ACCOUNT$"); //²éÑ¯½»Ò×ÕË»§
-		std::regex reg4("^QUERY POSITION$"); //²éÑ¯³Ö²Ö
-		std::regex reg5("^QUERY DETAIL$"); //²éÑ¯³É½»Ã÷Ï¸
-		std::regex reg6("^QUERY BALANCE$"); //²éÑ¯×Ê½ğÇé¿ö
-        std::regex reg7("^QUERY ORDER$");   //²éÑ¯Î¯ÍĞ
+		std::regex reg3("^QUERY ACCOUNT$"); //ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½
+		std::regex reg4("^QUERY POSITION$"); //ï¿½ï¿½Ñ¯ï¿½Ö²ï¿½
+		std::regex reg5("^QUERY DETAIL$"); //ï¿½ï¿½Ñ¯ï¿½É½ï¿½ï¿½ï¿½Ï¸
+		std::regex reg6("^QUERY BALANCE$"); //ï¿½ï¿½Ñ¯ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
+        std::regex reg7("^QUERY ORDER$");   //ï¿½ï¿½Ñ¯Î¯ï¿½ï¿½
 
 		std::smatch result;
-		//ÏÂµ¥
+		//ï¿½Âµï¿½
 		if (regex_match(input, result,std::regex("^(BUY|SELL|BUYETF|SELLETF|BUYCREDIT|SELLCREDIT|BUYGUARD|SELLGUARD) (SH|SZ)\.([0-9]{1,10}) ([0-9]{1,10}) ([.0-9]{1,10}|MKT)$")))
 		{
 			auto command = result[1].str();
@@ -427,27 +431,27 @@ int Work()
 			else if (command == "SELL")
 				req.StkBiz = 101;
 			else if (command == "BUYETF")
-				req.StkBiz = 181; // ETFÉê¹º
+				req.StkBiz = 181; // ETFï¿½ê¹º
 			else if (command == "SELLETF")
-				req.StkBiz = 182; // ETFÊê»Ø
+				req.StkBiz = 182; // ETFï¿½ï¿½ï¿½
 			else if (command == "BUYCREDIT")
 			{
-				req.StkBiz = 702; // ÈÚ×ÊÂòÈë
+				req.StkBiz = 702; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				isCredit = true;
 			}
 			else if (command == "SELLCREDIT")
 			{
-				req.StkBiz = 703; // ÈÚÈ¯Âô³ö
+				req.StkBiz = 703; // ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½
 				isCredit = true;
 			}
 			else if (command == "BUYGUARD")
 			{
-				req.StkBiz = 700; //µ£±£Æ·ÂòÈë
+				req.StkBiz = 700; //ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
 				isCredit = true;
 			}
 			else if (command == "SELLGUARD")
 			{
-				req.StkBiz = 701; //µ£±£Æ·Âô³ö
+				req.StkBiz = 701; //ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
 				isCredit = true;
 			}
 
@@ -467,15 +471,15 @@ int Work()
 
 			req.OrderQty = std::atoi(num.c_str());
 
-			if (price == "MKT") // ÊĞ¼Ûµ¥
+			if (price == "MKT") // ï¿½Ğ¼Ûµï¿½
 			{
-				req.StkBizAction = 121; // ×îÓÅ³É½»Ê£³·
+				req.StkBizAction = 121; // ï¿½ï¿½ï¿½Å³É½ï¿½Ê£ï¿½ï¿½
 				snprintf(req.OrderPrice, sizeof(req.OrderPrice), "0");
 
 			}
 			else
 			{
-				req.StkBizAction = 100; //ÏŞ¼Ûµ¥
+				req.StkBizAction = 100; //ï¿½Ş¼Ûµï¿½
 				snprintf(req.OrderPrice, sizeof(req.OrderPrice), "%s", price.c_str());
 			}
 
@@ -486,7 +490,7 @@ int Work()
 		}
 		else if (regex_match(input, result, std::regex("^CANCEL (SH|SZ) (\\S+)$")))
 		{
-			//³·µ¥
+			//ï¿½ï¿½ï¿½ï¿½
 			auto mkt = result[1].str();
 			auto code = result[2].str();
 
@@ -505,7 +509,7 @@ int Work()
 		}
 		else if (regex_match(input, reg3))
 		{
-			//²é¹É¶«ÕËºÅ
+			//ï¿½ï¿½É¶ï¿½ï¿½Ëºï¿½
 			COXReqTradeAcctField req;
 			memset(&req, 0, sizeof(req));
 			req.AcctType = g_acctType;
@@ -515,7 +519,7 @@ int Work()
 		}
 		else if (regex_match(input, reg4))
 		{
-			//²é¹ÉÆ±³Ö²Ö
+			//ï¿½ï¿½ï¿½Æ±ï¿½Ö²ï¿½
 			COXReqPositionField req;
 			memset(&req, 0, sizeof(req));
 			req.AcctType = g_acctType;
@@ -524,7 +528,7 @@ int Work()
 		}
 		else if (regex_match(input, reg5))
 		{
-			// ²é³É½»Ã÷Ï¸
+			// ï¿½ï¿½É½ï¿½ï¿½ï¿½Ï¸
 			COXReqFilledDetailField reqFilledDetailField;
 			memset(&reqFilledDetailField, 0, sizeof(reqFilledDetailField));
 			reqFilledDetailField.AcctType = OX_ACCOUNT_STOCK;
@@ -533,7 +537,7 @@ int Work()
 		}
 		else if (regex_match(input, reg6))
 		{
-			// ²éÑ¯×Ê½ğ	
+			// ï¿½ï¿½Ñ¯ï¿½Ê½ï¿½	
 			COXReqBalanceField req;
 			memset(&req, 0, sizeof(COXReqBalanceField));
 			req.AcctType = OX_ACCOUNT_STOCK;
@@ -541,7 +545,7 @@ int Work()
 			g_TradeApi->OnReqQueryBalance(0, &req);
 		}
         else if (regex_match(input, reg7)) {
-            // ²éÑ¯Î¯ÍĞ	
+            // ï¿½ï¿½Ñ¯Î¯ï¿½ï¿½	
             COXReqOrdersField req;
             memset(&req, 0, sizeof(COXReqOrdersField));
             req.AcctType = OX_ACCOUNT_STOCK;
@@ -549,7 +553,7 @@ int Work()
             g_TradeApi->OnReqQueryOrders(0, &req);
 
         }
-		// ÈÚ×ÊÈÚÈ¯²éÑ¯¸ºÕ®
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ñ¯ï¿½ï¿½Õ®
 		else if (regex_match(input, std::regex("CREDIT QUERY")))
 		{
 			COXReqCreditBalanceDebt req;
@@ -559,7 +563,7 @@ int Work()
 			req.Currency = '0';
 			g_TradeApi->OnReqCreditBalanceDebt(0, &req);
 		}
-		// ÈÚ×ÊÈÚÈ¯Ö±½Ó»¹¿î
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯Ö±ï¿½Ó»ï¿½ï¿½ï¿½
 		else if (regex_match(input, result, std::regex("^CREDIT REPAY (\\S+)$")))
 		{
 			auto money = result[1].str();
@@ -568,10 +572,10 @@ int Work()
 			req.AcctType = g_acctType;
 			snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
 			snprintf(req.RepayContractAmt, sizeof(req.RepayContractAmt), "%s", money.c_str());
-			req.RepayType = '0'; // '0' ³¥»¹ÈÚ×ÊÇ·¿î; '1'³¥»¹ÈÚ×Ê·ÑÓÃ
+			req.RepayType = '0'; // '0' ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½; '1'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê·ï¿½ï¿½ï¿½
 			g_TradeApi->OnReqCreditRepay(0, &req);
 		}
-        //±êµÄÈ¯²éÑ¯
+        //ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT STOCK LIST")))
         {
             
@@ -581,7 +585,7 @@ int Work()
             snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditTargetStocks(0, &req);
         }
-        //µ£±£È¯²éÑ¯
+        //ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT COLLATERALS STOCKS")))
         {
 
@@ -591,7 +595,7 @@ int Work()
             snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditCollateralsStocks(0, &req);
         }
-        //ÈÚÈ¯Í·´ç²éÑ¯
+        //ï¿½ï¿½È¯Í·ï¿½ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT SECULEND QUOTA")))
         {
 
@@ -602,7 +606,7 @@ int Work()
             snprintf(req.CashNo, sizeof(req.CashNo), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditSecuLendQuota(0, &req);
         }
-        //×Ê²ú¸ºÕ®²éÑ¯
+        //ï¿½Ê²ï¿½ï¿½ï¿½Õ®ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT BALANCE DEBT")))
         {
 
@@ -612,7 +616,7 @@ int Work()
             snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditBalanceDebt(0, &req);
         }
-        //ÈÚ×ÊÈÚÈ¯ºÏÔ¼²éÑ¯
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¯ï¿½ï¿½Ô¼ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT CONTRACTS")))
         {
 
@@ -622,7 +626,7 @@ int Work()
             snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditContracts(0, &req);
         }
-        //¿É³¥»¹½ğ¶î²éÑ¯
+        //ï¿½É³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯
         else if (regex_match(input, result, std::regex("CREDIT REIMBURSIBLE BALANCE")))
         {
 
@@ -632,7 +636,7 @@ int Work()
             snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
             g_TradeApi->OnReqCreditReimbursibleBalance(0, &req);
         }
-        //ÈÚÈ¯ºÏÔ¼»ã×ÜĞÅÏ¢
+        //ï¿½ï¿½È¯ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
         else if (regex_match(input, result, std::regex("CREDIT CONTRACTSUMMARY")))
         {
 
@@ -689,6 +693,38 @@ int Work()
 
 int main()
 {
+#ifdef _WIN32
+	// å°è¯•åˆ‡æ¢åˆ°binç›®å½•ï¼Œç¡®ä¿Tradelog.propç­‰é…ç½®æ–‡ä»¶èƒ½è¢«æ­£ç¡®æ‰¾åˆ°
+	// è·å–å¯æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨ç›®å½•
+	char exePath[MAX_PATH];
+	GetModuleFileNameA(NULL, exePath, MAX_PATH);
+	std::string exeDir = exePath;
+	size_t lastSlash = exeDir.find_last_of("\\/");
+	if (lastSlash != std::string::npos) {
+		exeDir = exeDir.substr(0, lastSlash + 1);
+	}
+	
+	// å°è¯•åˆ‡æ¢åˆ°binç›®å½•ï¼ˆç›¸å¯¹äºå¯æ‰§è¡Œæ–‡ä»¶ç›®å½•ï¼‰
+	std::string binDir = exeDir;
+	// å¦‚æœå¯æ‰§è¡Œæ–‡ä»¶åœ¨binç›®å½•ä¸‹ï¼Œç›´æ¥ä½¿ç”¨
+	// å¦‚æœåœ¨å…¶ä»–ç›®å½•ï¼ˆå¦‚demoç›®å½•ï¼‰ï¼Œå°è¯•åˆ‡æ¢åˆ°../bin
+	if (binDir.find("bin") == std::string::npos) {
+		binDir = exeDir + "..\\bin\\";
+	}
+	
+	// å°è¯•åˆ‡æ¢åˆ°binç›®å½•
+	if (SetCurrentDirectoryA(binDir.c_str())) {
+		std::cout << "Working directory set to: " << binDir << std::endl;
+	} else {
+		// å¦‚æœå¤±è´¥ï¼Œå°è¯•ç›´æ¥ä½¿ç”¨exeç›®å½•ï¼ˆå‡è®¾exeåœ¨binç›®å½•ä¸‹ï¼‰
+		if (SetCurrentDirectoryA(exeDir.c_str())) {
+			std::cout << "Working directory set to: " << exeDir << std::endl;
+		} else {
+			std::cerr << "Warning: Failed to set working directory. Current dir: " << exeDir << std::endl;
+		}
+	}
+#endif
+
 	std::string strCfgFile = getarg("", "--file");
 	if (strCfgFile.empty())
 	{
@@ -705,7 +741,7 @@ int main()
 		return -1;
 	}
 	
-	//¶ÁÈ¡iniÅäÖÃµÄÕËºÅ
+	//ï¿½ï¿½È¡iniï¿½ï¿½ï¿½Ãµï¿½ï¿½Ëºï¿½
 	g_acct = reader.Get("user", "acct", "");
 	g_passwd = reader.Get("user", "password", "");
     auto acctType = reader.Get("user", "acct_type", "0");
@@ -718,7 +754,7 @@ int main()
 	
 
 	printf("user.acct=[%s],user.sh_trade_account=[%s],user.sz_trade_account=[%s]\n", g_acct.c_str(), g_shTrdAcct.c_str(), g_szTrdAcct.c_str());
-	// »ñÈ¡²¢ÇÒ³õÊ¼»¯½»Ò×½Ó¿Ú
+	// ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ò³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½×½Ó¿ï¿½
 	g_TradeApi = gxCreateTradeApi();
     std::cout <<"gxCreateTradeApi g_TradeApi " << g_TradeApi<<std::endl;
     StkSpi stkSpi;
@@ -729,7 +765,7 @@ int main()
     printf("Init return %d, error info %s \n", iInitRet, pError);
     std::cout << "Init g_TradeApi " << g_TradeApi << std::endl;
 
-	// µÇÂ¼
+	// ï¿½ï¿½Â¼
 	COXReqLogonField req;
 	snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
 	//req.AcctType = OX_ACCOUNT_STOCK;
