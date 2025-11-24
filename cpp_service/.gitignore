@@ -1,0 +1,55 @@
+# 构建目录
+build/
+cmake-build-*/
+
+# 编译输出
+*.exe
+*.dll
+*.lib
+*.obj
+*.o
+*.a
+*.so
+*.dylib
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# 日志文件
+logs/*.log
+*.log
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# 可执行文件
+bin/
+lib/
+
