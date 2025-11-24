@@ -26,6 +26,8 @@ std::string g_shTrdAcct;
 std::string g_szTrdAcct;
 
 static bool g_logedOn = false;
+static bool g_logonSuccess = false;
+static std::string g_logonErrorMsg;
 
 
 
@@ -35,15 +37,68 @@ class StkSpi :public GuosenOXTradeSpi
 public:
 	virtual void OnRspLogon(int nRequest, const CRspErrorField *pError, bool bLast, const COXRspLogonField *pField) override
 	{
-		std::cout << __FUNCTION__ << " called : " << pError->ErrorInfo << std::endl;
-		g_logedOn = true;
+		std::cout << "\n========== 登录回调 ==========" << std::endl;
+		std::cout << "Request ID: " << nRequest << std::endl;
+		std::cout << "Is Last: " << (bLast ? "Yes" : "No") << std::endl;
+		
+		if (pError) {
+			std::cout << "Error ID: " << pError->ErrorId << std::endl;
+			std::cout << "Error Info: " << pError->ErrorInfo << std::endl;
+			
+			if (pError->ErrorId == 0) {
+				// 登录成功
+				g_logonSuccess = true;
+				g_logonErrorMsg = "";
+				std::cout << "✓ 登录成功！" << std::endl;
+				
+				if (pField) {
+					std::cout << "Account: " << pField->Account << std::endl;
+				}
+				
+				// 登录成功后自动查询交易账户信息
+				std::cout << "\n正在查询交易账户信息..." << std::endl;
+				COXReqTradeAcctField req;
+				memset(&req, 0, sizeof(req));
+				req.AcctType = g_acctType;
+				snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
+				g_TradeApi->OnReqTradeAccounts(0, &req);
+			} else {
+				// 登录失败
+				g_logonSuccess = false;
+				g_logonErrorMsg = pError->ErrorInfo;
+				std::cout << "✗ 登录失败！" << std::endl;
+			}
+		} else {
+			std::cout << "Warning: pError is nullptr" << std::endl;
+			g_logonSuccess = false;
+			g_logonErrorMsg = "Unknown error";
+		}
+		
+		std::cout << "============================\n" << std::endl;
+		g_logedOn = true;  // 标记回调已收到，无论成功或失败
 		return;
 	}
 
 	virtual void OnRspTradeAccounts(int nRequest,const CRspErrorField *pError, bool bLast, const COXRspTradeAcctField *pField) override
 	{
-		std::cout << __FUNCTION__ << " called" << std::endl;
-		std::cout << pField->BoardId << " " << pField->TrdAcct << std::endl;
+		std::cout << "\n========== 交易账户查询回调 ==========" << std::endl;
+		std::cout << "Request ID: " << nRequest << std::endl;
+		std::cout << "Is Last: " << (bLast ? "Yes" : "No") << std::endl;
+		
+		if (pError && pError->ErrorId != 0) {
+			std::cout << "✗ 查询失败 - Error ID: " << pError->ErrorId << std::endl;
+			std::cout << "Error Info: " << pError->ErrorInfo << std::endl;
+		} else if (pField) {
+			std::cout << "✓ 交易账户信息：" << std::endl;
+			std::cout << "  交易所代码: " << pField->BoardId << std::endl;
+			std::cout << "  交易账户: " << pField->TrdAcct << std::endl;
+		} else {
+			std::cout << "Warning: pField is nullptr" << std::endl;
+		}
+		
+		if (bLast) {
+			std::cout << "============================\n" << std::endl;
+		}
 	}
 
 	//ί����Ϣ����
@@ -757,27 +812,75 @@ int main()
 	// ��ȡ���ҳ�ʼ�����׽ӿ�
 	g_TradeApi = gxCreateTradeApi();
     std::cout <<"gxCreateTradeApi g_TradeApi " << g_TradeApi<<std::endl;
+	// 步骤2: 注册回调接口
+	std::cout << "\n[2/4] 注册回调接口..." << std::endl;
     StkSpi stkSpi;
     g_TradeApi->RegisterSpi(&stkSpi);
-    std::cout << "RegisterSpi g_TradeApi " << g_TradeApi << std::endl;
+	std::cout << "✓ 回调接口注册成功" << std::endl;
+	// 步骤3: 初始化API
+	std::cout << "\n[3/4] 初始化API..." << std::endl;
     const char *pError = nullptr;
 	int iInitRet = g_TradeApi->Init(&pError);
-    printf("Init return %d, error info %s \n", iInitRet, pError);
-    std::cout << "Init g_TradeApi " << g_TradeApi << std::endl;
+	if (iInitRet != 0) {
+		std::cerr << "✗ API初始化失败！返回码: " << iInitRet << std::endl;
+		if (pError) {
+			std::cerr << "  错误信息: " << pError << std::endl;
+		}
+		return -1;
+	}
+	std::cout << "✓ API初始化成功" << std::endl;
+	if (pError && strlen(pError) > 0) {
+		std::cout << "  提示信息: " << pError << std::endl;
+	}
 
 	// ��¼
+	// 步骤4: 发送登录请求
+	std::cout << "\n[4/4] 发送登录请求..." << std::endl;
 	COXReqLogonField req;
+	memset(&req, 0, sizeof(req));
 	snprintf(req.Account, sizeof(req.Account), "%s", g_acct.c_str());
-	//req.AcctType = OX_ACCOUNT_STOCK;
-    req.AcctType = g_acctType;
-    
+	req.AcctType = g_acctType;
 	snprintf(req.Password, sizeof(req.Password), "%s", g_passwd.c_str());
+	
+	std::cout << "  账户: " << req.Account << std::endl;
+	std::cout << "  账户类型: " << (char)req.AcctType << std::endl;
+	
 	int iLogon = g_TradeApi->OnReqLogon(0, &req);
-    printf("Logon return %d\n", iLogon);
-    std::cout << "OnReqLogon g_TradeApi " << g_TradeApi << std::endl;
+	if (iLogon != 0) {
+		std::cerr << "✗ 发送登录请求失败！返回码: " << iLogon << std::endl;
+		return -1;
+	}
+	std::cout << "✓ 登录请求已发送，等待回调..." << std::endl;
   
-	while(!g_logedOn)
-		std::this_thread::yield();
+	// 等待登录回调
+	std::cout << "\n等待登录回调..." << std::endl;
+	int waitCount = 0;
+	const int maxWaitCount = 100;  // 最多等待10秒（100 * 100ms）
+	while(!g_logedOn && waitCount < maxWaitCount) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		waitCount++;
+		if (waitCount % 10 == 0) {
+			std::cout << "." << std::flush;
+		}
+	}
+	std::cout << std::endl;
+	
+	if (!g_logedOn) {
+		std::cerr << "✗ 登录超时！未收到登录回调" << std::endl;
+		return -1;
+	}
+	
+	// 检查登录结果
+	if (!g_logonSuccess) {
+		std::cerr << "\n✗ 登录失败！" << std::endl;
+		if (!g_logonErrorMsg.empty()) {
+			std::cerr << "  错误信息: " << g_logonErrorMsg << std::endl;
+		}
+		return -1;
+	}
+	
+	std::cout << "\n✓✓✓ 登录流程完成！✓✓✓" << std::endl;
+	std::cout << "============================\n" << std::endl;
 
 	Work();
 
